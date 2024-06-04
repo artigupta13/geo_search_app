@@ -1,55 +1,90 @@
-import db from "../utils/db.js";
-
+import checkEmptyString from "../utils/checkEmptyString.js";
 class LocationService {
   // Search locations in the database based on query
-  async searchLocations(query) {
-    const database = await db.connect();
-    const collection = database.collection("locations");
-
+  async searchLocations(query, collection) {
     // Perform aggregation pipeline to find, project, and sort locations
-    const location = await collection
-      .aggregate([
-        {
-          $match: {
-            name: new RegExp(query, "i"),
+    console.log("Query........", query);
+    let { name, longitude, latitude } = query;
+    name = checkEmptyString(name);
+    longitude = checkEmptyString(longitude);
+    latitude = checkEmptyString(latitude);
+    let location;
+    if (longitude && latitude) {
+
+      const myquery = name ? { name: new RegExp(name, "i") } : {};
+
+      location = await collection
+        .aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(longitude), parseFloat(latitude)],
+              },
+              key: "location",
+              distanceField: "score",
+              spherical: true,
+              query: myquery,
+            },
           },
-        },
-        {
-          $addFields: {
-            score: {
-              $function: {
-                body: `function (name, query) {
+          {
+            $project: {
+              _id: 0,
+              name: 1,
+              longitude: { $arrayElemAt: ["$location.coordinates", 0] },
+              latitude: { $arrayElemAt: ["$location.coordinates", 1] },
+              score: 1,
+            },
+          },
+          { $limit: 5 },
+        ])
+        .toArray();
+      console.log(location);
+    } else if (name) {
+      console.log("1");
+      location = await collection
+        .aggregate([
+          {
+            $match: {
+              name: new RegExp(name, "i"),
+            },
+          },
+          {
+            $addFields: {
+              score: {
+                $function: {
+                  body: `function (name, query) {
                     let score = 0;
                     if (name.toLowerCase().includes(query.toLowerCase())) {
                       score = query.length / name.length;
                     }
                     return score;
                 }`,
-                args: ["$name", query],
-                lang: "js",
+                  args: ["$name", name],
+                  lang: "js",
+                },
               },
             },
           },
-        },
-        {
-          $project: {
-            _id: 0,
-            name: 1,
-            latitude: 1,
-            longitude: 1,
-            score: 1,
+          {
+            $project: {
+              _id: 0,
+              name: 1,
+              longitude: { $arrayElemAt: ["$location.coordinates", 0] },
+              latitude: { $arrayElemAt: ["$location.coordinates", 1] },
+              score: 1,
+            },
           },
-        },
-        {
-          $sort: { score: -1 }, // Sort by score in descending order
-        },
-      ])
-      .toArray();
+          {
+            $sort: { score: -1 }, // Sort by score in descending order
+          },
+          { $limit: 5 },
+        ])
+        .toArray();
+    }
 
     return location;
   }
-
 }
 
 export default new LocationService();
-    

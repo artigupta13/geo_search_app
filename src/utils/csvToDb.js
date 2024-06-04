@@ -1,12 +1,8 @@
 import fs from "fs";
 import csv from "csv-parser";
-import db from "./db.js";
 
-const migrateCsvToDb = async (filePath) => {
+const migrateCsvToDb = async (filePath, collection) => {
   try {
-    const database = await db.connect();
-    const collection = database.collection("locations");
-
     // Clear the collection to prevent duplicates
     await collection.deleteMany({});
     fs.createReadStream(filePath)
@@ -16,40 +12,42 @@ const migrateCsvToDb = async (filePath) => {
 
         // Create an array to hold address components
         const addressComponents = [];
+        try {
+          // Check if each field exists and add it to the array
+          if (row.city) addressComponents.push(row.city);
+          if (row.county) addressComponents.push(row.county);
+          if (row.country) addressComponents.push(row.country);
 
-        // Check if each field exists and add it to the array
-        if (row.city) addressComponents.push(row.city);
-        if (row.county) addressComponents.push(row.county);
-        if (row.country) addressComponents.push(row.country);
+          // Concatenate address components into a single string
+          const address = addressComponents.join(" ");
+          const longitude = parseFloat(row.longitude);
+          const latitude = parseFloat(row.latitude);
 
-        // Concatenate address components into a single string
-        const name = addressComponents.join(" ");
-        console.log(name);
-        await collection.updateOne(
-          {
-            name: name,
-            street: row.street,
-            city: row.city,
-            zip_code: row.zip_code,
-            county: row.county,
-            country: row.country,
-            time_zone: row.time_zone,
-          },
-          {
-            $set: {
-              name: name,
-              street: row.street,
-              city: row.city,
-              zip_code: row.zip_code,
-              county: row.county,
-              latitude: row.latitude,
-              country: row.country,
-              longitude: row.longitude,
-              time_zone: row.time_zone,
+          await collection.updateOne(
+            {
+              name: address,
+              location: {
+                type: "Point",
+                coordinates: [parseFloat(longitude), parseFloat(latitude)],
+              },
             },
-          },
-          { upsert: true }
-        );
+            {
+              $set: {
+                name: address,
+                location: {
+                  type: "Point",
+                  coordinates: [longitude, latitude],
+                },
+              },
+            },
+            { upsert: true }
+          );
+        } catch (error) {
+          console.error(
+            "unable to save csv data to DB due to wrong type",
+            error.message
+          );
+        }
       })
       .on("end", () => {
         console.log(

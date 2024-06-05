@@ -38,6 +38,7 @@ app.listen(config.port, async () => {
     const database = await db.connect();
     locationDataSource = database.collection("locations");
     await locationDataSource.createIndex({ location: "2dsphere" });
+    await locationDataSource.createIndex({ name: "text" });
     console.log(`Server is running on http://localhost:${config.port}`);
   } catch (error) {
     console.error("Failed to connect to server", error);

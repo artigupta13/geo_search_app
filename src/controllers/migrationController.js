@@ -1,11 +1,10 @@
 import migrateCsvToDb from "../utils/csvToDb.js";
-import getFilePath from "../utils/getFilePath.js";
 
 class MigrationController {
   async migrate(req, res) {
     const { locationDataSource } = req.db;
     try {
-      const filepath = getFilePath();
+      const filepath = req.file.path;
       migrateCsvToDb(filepath, locationDataSource);
       res.status(200).json({
         message: "CSV file processing initiated",

@@ -5,6 +5,7 @@ const migrateCsvToDb = async (filePath, collection) => {
   try {
     // Clear the collection to prevent duplicates
     await collection.deleteMany({});
+    const updatedOn = new Date();
     fs.createReadStream(filePath)
       .pipe(csv())
       .on("data", async (row) => {
@@ -41,6 +42,7 @@ const migrateCsvToDb = async (filePath, collection) => {
               $set: {
                 name: address,
                 location,
+                updatedOn
               },
             },
             { upsert: true }
@@ -59,6 +61,7 @@ const migrateCsvToDb = async (filePath, collection) => {
         console.log(
           "CSV file successfully processed and data saved to MongoDB"
         );
+        fs.unlinkSync(filePath); 
       });
   } catch (err) {
     console.error("Error processing CSV file", err);

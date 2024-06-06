@@ -29,8 +29,8 @@ app.use(async (req, res, next) => {
 });
 
 // Register routes
-app.use("/api", searchRoutes);
-app.use("/", migrationRoutes);
+app.use("/api/search", searchRoutes);
+app.use("/api/migrate", migrationRoutes);
 
 // Start the server
 app.listen(config.port, async () => {

@@ -67,6 +67,6 @@ describe("SearchController", () => {
     );
 
     // Verify that res.json was called with the correct response
-    expect(res.json).toHaveBeenCalledWith({ message: "Something went wrong" });
+    expect(res.json).toHaveBeenCalledWith({ message: "Something went wrong. Error: Something wrong" });
   });
 });

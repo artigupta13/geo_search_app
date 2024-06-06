@@ -1,18 +1,14 @@
 import migrateCsvToDb from "../utils/csvToDb.js";
-import { fileURLToPath } from "url";
-import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import getFilePath from "../utils/getFilePath.js";
 
 class MigrationController {
   async migrate(req, res) {
     const { locationDataSource } = req.db;
     try {
-      const filepath = path.join(__dirname, "../data/geolocation_data.csv");
-      await migrateCsvToDb(filepath, locationDataSource);
+      const filepath = getFilePath();
+      migrateCsvToDb(filepath, locationDataSource);
       res.status(200).json({
-        message: "CSV file successfully processed and data saved to MongoDB",
+        message: "CSV file processing initiated",
       });
     } catch (err) {
       console.log(err);
@@ -21,4 +17,4 @@ class MigrationController {
   }
 }
 
-export default new MigrationController();
+export default MigrationController;

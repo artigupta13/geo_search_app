@@ -14,40 +14,46 @@ const migrateCsvToDb = async (filePath, collection) => {
         const addressComponents = [];
         try {
           // Check if each field exists and add it to the array
+          // if (row.street) addressComponents.push(row.street);
           if (row.city) addressComponents.push(row.city);
           if (row.county) addressComponents.push(row.county);
           if (row.country) addressComponents.push(row.country);
+          // if(row.zip_code) addressComponents.push(row.zip_code);
 
           // Concatenate address components into a single string
           const address = addressComponents.join(" ");
+
+          // parse longitude and latitude value
           const longitude = parseFloat(row.longitude);
           const latitude = parseFloat(row.latitude);
+
+          const location = {
+            type: "Point",
+            coordinates: [longitude, latitude],
+          };
 
           await collection.updateOne(
             {
               name: address,
-              location: {
-                type: "Point",
-                coordinates: [parseFloat(longitude), parseFloat(latitude)],
-              },
+              location,
             },
             {
               $set: {
                 name: address,
-                location: {
-                  type: "Point",
-                  coordinates: [longitude, latitude],
-                },
+                location,
               },
             },
             { upsert: true }
           );
         } catch (error) {
           console.error(
-            "unable to save csv data to DB due to wrong type",
-            error.message
+            "Failed to save CSV data to the database. This may be due to an incorrect data type.",
+            `Error Details: ${error.message}`
           );
         }
+      })
+      .on("error", (error) => {
+        console.error("Error reading file:", error.message);
       })
       .on("end", () => {
         console.log(

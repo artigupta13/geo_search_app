@@ -1,5 +1,5 @@
 const checkEmptyString = (str) => {
-    return str?.trim() === '' ? null : str;
-  };
+  return str?.trim() === "" ? null : str;
+};
 
-  export default checkEmptyString;
+export default checkEmptyString;

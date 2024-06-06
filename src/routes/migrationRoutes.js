@@ -1,9 +1,9 @@
 import { Router } from "express";
-import migrationController from "../controllers/migrationController.js";
+import MigrationController from "../controllers/migrationController.js";
 
 const router = Router();
 
 // Define the migration endpoint
-router.post("/migrate", (req, res) => migrationController.migrate(req, res));
+router.post("/migrate", (req, res) => new MigrationController().migrate(req, res));
 
 export default router;

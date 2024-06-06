@@ -7,7 +7,7 @@ import db from "../src/utils/db.js";
 
 let locationDataSource;
 
-const app = express();
+export const app = express();
 
 // Middleware for parsing JSON and securing the app
 app.use(express.json());
@@ -43,12 +43,5 @@ app.listen(config.port, async () => {
   } catch (error) {
     console.error("Failed to connect to server", error);
     await db.close();
-    process.exit(0);
   }
-});
-
-process.on("SIGINT", async () => {
-  console.log("Received SIGINT. Closing MongoDB connection...");
-  await db.close();
-  process.exit(0);
 });

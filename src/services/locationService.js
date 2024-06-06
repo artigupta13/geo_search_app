@@ -1,20 +1,27 @@
+import { getCachedData, setCachedData } from "../utils/cacheUtils.js";
 import checkEmptyString from "../utils/checkEmptyString.js";
+
 class LocationService {
   async searchLocations(query, collection) {
-   
     let { name, longitude, latitude } = query;
-    let location = [];
+    const cachekey = name + longitude + latitude;
+
+    let response = [];
+
+    const cachedData = await getCachedData(cachekey);
+    if (cachedData) {
+      return cachedData;
+    }
 
     name = checkEmptyString(name);
     longitude = checkEmptyString(longitude);
     latitude = checkEmptyString(latitude);
 
-
     if (longitude && latitude) {
       const myquery = name ? { name: new RegExp(name, "i") } : {};
 
-       // Perform aggregation pipeline to find, project, and sort locations
-      location = await collection
+      // Perform aggregation pipeline to find, project, and sort locations
+      let location = await collection
         .aggregate([
           {
             $geoNear: {
@@ -39,7 +46,7 @@ class LocationService {
             },
           },
           {
-            $sort: { distance: 1 }, // Sort by score in descending order
+            $sort: { distance: 1 }, // Sort by score in asceending order
           },
           { $limit: 10 },
         ])
@@ -49,7 +56,7 @@ class LocationService {
         return l.distance;
       });
 
-      const final_distances = location.map((l) => {
+      response = location.map((l) => {
         return {
           ...l,
           score: parseFloat(
@@ -57,10 +64,8 @@ class LocationService {
           ),
         };
       });
-
-      return final_distances;
     } else if (name) {
-      location = await collection
+      response = await collection
         .aggregate([
           { $match: { $text: { $search: name } } },
 
@@ -77,12 +82,14 @@ class LocationService {
           {
             $sort: { score: -1 }, // Sort by score in descending order
           },
-          { $limit: 5 },
+          { $limit: 10 },
         ])
         .toArray();
     }
 
-    return location;
+    await setCachedData(cachekey, response);
+
+    return response;
   }
 
   // Search locations in the database based on query
@@ -100,9 +107,6 @@ class LocationService {
     return (value - min) / (max - min);
   }
 
-  calculateZScore(value, mean, standardDeviation) {
-    return (value - mean) / standardDeviation;
-  }
   calculateConfidenceScore(distance, distances) {
     const { mean, standardDeviation } =
       this.calculateMeanAndStandardDeviation(distances);
@@ -122,4 +126,4 @@ class LocationService {
   }
 }
 
-export default new LocationService();
+export default LocationService;

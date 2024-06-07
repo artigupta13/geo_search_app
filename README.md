@@ -11,9 +11,14 @@ Before running the application, make sure you have the following installed:
 - npm (v10.5.0)
 
 ## Setup
-1. Start MongoDB:
+1. Start MongoDB on Terminal:
+- For Mac users:
+  ```
+  mongod --dbpath ~/mongodb_data
+  ```
+- For other platforms, please refer to the official mongodb documentation for installation instructions.
 
-2. Start Redis:
+2. Start Redis on Terminal:
 - For Mac users:
   ```
   brew services start redis
@@ -21,7 +26,7 @@ Before running the application, make sure you have the following installed:
 - For other platforms, please refer to the official Redis documentation for installation instructions.
 
 3. Install dependencies:
- ```
+```
   npm install
   ```
 
@@ -37,16 +42,24 @@ To start the application, run the following command:
 By default, the application runs on port 8000.
 
 ## API Endpoints
-1. **Data Migration API:**
+
+1. ** Save all countries, state and cities name API:**
+   - Endpoint: `/api/migrate-country`
+   - HTTP request: POST
+   - Description: This API endpoint saves all country, state, and city details to MongoDB. It is used to retrieve the state code of a city, which is then saved with the address information.
+
+   ![alt text](migrate-country.png)
+   
+2. **Data Migration API:**
    - Endpoint: `/api/migrate`
    - HTTP request: POST
    - Description: This API endpoint is used to migrate data from CSV files to MongoDB.
 
    ![alt text](docs/migrate.png)
 
-2. **Search API:**
+3. **Search API:**
    - Endpoint: `/api/search`
-    - HTTP request: GET
+   - HTTP request: GET
    - Description: This API endpoint is used to search data stored in MongoDB.
 
    ![alt text](docs/search.png)

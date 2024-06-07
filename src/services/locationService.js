@@ -2,8 +2,24 @@ import { getCachedData, setCachedData } from "../utils/cacheUtils.js";
 import checkEmptyString from "../utils/checkEmptyString.js";
 
 class LocationService {
-  async searchLocations(query, collection) {
+  constructor(collection) {
+    this.collection = collection;
+  }
+
+  static async createIndexes(collection) {
+    this.collection = collection;
+
+    await this.collection.createIndex({ location: "2dsphere" });
+    await this.collection.createIndex({ name: "text" });
+  }
+
+  async searchLocations(query) {
     let { name, longitude, latitude } = query;
+
+    name = checkEmptyString(name);
+    longitude = checkEmptyString(longitude);
+    latitude = checkEmptyString(latitude);
+
     const cachekey = name + longitude + latitude;
 
     let response = [];
@@ -13,15 +29,11 @@ class LocationService {
       return cachedData;
     }
 
-    name = checkEmptyString(name);
-    longitude = checkEmptyString(longitude);
-    latitude = checkEmptyString(latitude);
-
     if (longitude && latitude) {
       const myquery = name ? { name: new RegExp(name, "i") } : {};
 
       // Perform aggregation pipeline to find, project, and sort locations
-      let location = await collection
+      let location = await this.collection
         .aggregate([
           {
             $geoNear: {
@@ -65,7 +77,7 @@ class LocationService {
         };
       });
     } else if (name) {
-      response = await collection
+      response = await this.collection
         .aggregate([
           { $match: { $text: { $search: name } } },
 

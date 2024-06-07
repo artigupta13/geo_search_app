@@ -66,7 +66,7 @@ class MigrationDataSource {
       if (row.country) addressComponents.push(row.country);
 
       // Concatenate address components into a single string
-      const address = addressComponents.join(" ");
+      const address = addressComponents.join(", ");
 
       // parse longitude and latitude value
       const longitude = parseFloat(row.longitude);

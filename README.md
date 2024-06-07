@@ -48,7 +48,7 @@ By default, the application runs on port 8000.
    - HTTP request: POST
    - Description: This API endpoint saves all country, state, and city details to MongoDB. It is used to retrieve the state code of a city, which is then saved with the address information.
 
-   ![alt text](migrate-country.png)
+   ![alt text](docs/migrate-country.png)
    
 2. **Data Migration API:**
    - Endpoint: `/api/migrate`

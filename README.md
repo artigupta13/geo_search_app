@@ -30,6 +30,10 @@ Before running the application, make sure you have the following installed:
   npm install
   ```
 
+4. test the application:
+```
+  npm run test
+  ```
 
 
 ## Running the Application
@@ -43,7 +47,7 @@ By default, the application runs on port 8000.
 
 ## API Endpoints
 
-1. ** Save all countries, state and cities name API:**
+1. **Save all countries, state and cities name API:**
    - Endpoint: `/api/migrate-country`
    - HTTP request: POST
    - Description: This API endpoint saves all country, state, and city details to MongoDB. It is used to retrieve the state code of a city, which is then saved with the address information.

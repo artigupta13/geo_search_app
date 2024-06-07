@@ -1,7 +1,7 @@
 import { getCachedData, setCachedData } from "../utils/cacheUtils.js";
 import checkEmptyString from "../utils/checkEmptyString.js";
 
-class LocationService {
+class LocationDataSource {
   constructor(collection) {
     this.collection = collection;
   }
@@ -138,4 +138,4 @@ class LocationService {
   }
 }
 
-export default LocationService;
+export default LocationDataSource;

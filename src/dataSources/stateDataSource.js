@@ -1,6 +1,6 @@
 import { Country, State, City } from "country-state-city";
 
-class StateService {
+class StateDataSource {
   collection = null;
 
   constructor(collection) {
@@ -63,22 +63,25 @@ class StateService {
     return new Promise(async (resolve, reject) => {
       try {
         const countries = Country.getAllCountries();
-  
+
         for (const country of countries) {
           const states = State.getStatesOfCountry(country.isoCode);
           const statesData = [];
-  
+
           for (const state of states) {
-            const cities = City.getCitiesOfState(country.isoCode, state.isoCode);
+            const cities = City.getCitiesOfState(
+              country.isoCode,
+              state.isoCode
+            );
             const citiesData = cities.map((city) => city.name);
-  
+
             statesData.push({
               name: state.name,
               isoCode: state.isoCode,
               cities: citiesData,
             });
           }
-  
+
           const data = {
             country: {
               name: country.name,
@@ -86,9 +89,9 @@ class StateService {
             },
             states: statesData,
           };
-  
+
           await this.collection.updateOne(
-            { "country.name" : country.name },
+            { "country.name": country.name },
             { $set: { ...data } },
             { upsert: true }
           );
@@ -100,8 +103,6 @@ class StateService {
       }
     });
   }
-
 }
 
-
-export default StateService;
+export default StateDataSource;

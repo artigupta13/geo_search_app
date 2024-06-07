@@ -5,7 +5,7 @@ import { promisify } from "util";
 
 const asyncPipeline = promisify(pipeline);
 
-class MigrationService {
+class MigrationDataSource {
   constructor(collection) {
     this.collection = collection;
   }
@@ -99,4 +99,4 @@ class MigrationService {
     }
   }
 }
-export default MigrationService;
+export default MigrationDataSource;

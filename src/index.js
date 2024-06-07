@@ -5,9 +5,9 @@ import migrationRoutes from "./routes/migrationRoutes.js";
 import counryRoutes from "./routes/countryRoutes.js";
 import { config } from "./config.js";
 import db from "../src/utils/db.js";
-import StateService from "./services/stateService.js";
-import LocationService from "./services/locationService.js";
-import MigrationService from "./services/migrationService.js";
+import StateDataSource from "./dataSources/stateDataSource.js";
+import LocationDataSource from "./dataSources/locationDataSource.js";
+import MigrationDataSource from "./dataSources/migrationDataSource.js";
 
 let locationDataSource;
 let stateDataSource;
@@ -47,12 +47,12 @@ app.listen(config.port, async () => {
     const locationCollection = database.collection("locations");
     const stateCollection = database.collection("country-state-city");
 
-    await StateService.createIndexes(stateCollection);
-    await LocationService.createIndexes(locationCollection);
+    await StateDataSource.createIndexes(stateCollection);
+    await LocationDataSource.createIndexes(locationCollection);
 
-    stateDataSource = new StateService(stateCollection);
-    locationDataSource = new LocationService(locationCollection);
-    migrationDataSource = new MigrationService(locationCollection);
+    stateDataSource = new StateDataSource(stateCollection);
+    locationDataSource = new LocationDataSource(locationCollection);
+    migrationDataSource = new MigrationDataSource(locationCollection);
 
     console.log(`Server is running on http://localhost:${config.port}`);
   } catch (error) {

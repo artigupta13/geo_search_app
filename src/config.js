@@ -5,7 +5,7 @@ dotenv.config();
 
 // Export the configuration object
 export const config = {
-    dbURI: process.env.DB_URI,
-    dbName: process.env.DB_NAME,
-    port: process.env.PORT
+    dbURI: process.env.DB_URI || 'mongodb://localhost:27017/',
+    dbName: process.env.DB_NAME || 'geo_search',
+    port: process.env.PORT || 8000
 };

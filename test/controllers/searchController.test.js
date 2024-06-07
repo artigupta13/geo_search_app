@@ -1,21 +1,22 @@
 import SearchController from "../../src/controllers/searchController";
-import LocationService from "../../src/services/locationService";
+import {
+  locationDataSource,
+  migrationDataSource,
+  stateDataSource,
+} from "../__mocks__/dataSources";
 
-// Mock the locationService
-jest.mock("../../src/services/locationService");
+// // Mock the locationService
+// jest.mock("../../src/services/locationDataSource");
 
 describe("SearchController", () => {
   let req, res, next;
 
-  const searchLocationsSpy = jest
-    .spyOn(LocationService.prototype, "searchLocations")
-    .mockResolvedValueOnce({ suggestions: [] })
-    .mockRejectedValueOnce(new Error("Something wrong"));
-
   beforeEach(() => {
     req = {
-      db: {
-        locationDataSource: "mockedDataSource",
+      dataSources: {
+        locationDataSource,
+        migrationDataSource,
+        stateDataSource,
       },
       query: {
         name: "london",
@@ -37,17 +38,14 @@ describe("SearchController", () => {
 
   it("should search locations and return suggestions", async () => {
     // Mock the results returned by locationService.searchLocations
-    const mockedResults = { suggestions: [] };
-    // locationService.searchLocations.mockResolvedValue(mockedResults);
+    const mockedResults = [];
+    locationDataSource.searchLocations.mockResolvedValueOnce(mockedResults);
 
     // Call the search method
     await SearchController.search(req, res, next);
 
     // Verify that locationService.searchLocations was called with the correct arguments
-    expect(searchLocationsSpy).toHaveBeenCalledWith(
-      req.query,
-      req.db.locationDataSource
-    );
+    expect(locationDataSource.searchLocations).toHaveBeenCalledWith(req.query);
 
     // Verify that res.json was called with the correct response
     expect(res.json).toHaveBeenCalledWith({ suggestions: mockedResults });
@@ -57,16 +55,19 @@ describe("SearchController", () => {
   });
 
   it("should handle errors", async () => {
+    locationDataSource.searchLocations.mockRejectedValueOnce(
+      new Error("Some error")
+    );
+
     // Call the search method
     await SearchController.search(req, res, next);
 
     // Verify that locationService.searchLocations was called with the correct arguments
-    expect(searchLocationsSpy).toHaveBeenCalledWith(
-      req.query,
-      req.db.locationDataSource
-    );
+    expect(locationDataSource.searchLocations).toHaveBeenCalledWith(req.query);
 
     // Verify that res.json was called with the correct response
-    expect(res.json).toHaveBeenCalledWith({ message: "Something went wrong. Error: Something wrong" });
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Something went wrong. Error: Some error",
+    });
   });
 });

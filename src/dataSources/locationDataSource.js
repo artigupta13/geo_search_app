@@ -16,18 +16,17 @@ class LocationDataSource {
   async searchLocations(query) {
     let { name, longitude, latitude } = query;
 
-    name = checkEmptyString(name);
-    longitude = checkEmptyString(longitude);
-    latitude = checkEmptyString(latitude);
-
     const cachekey = name + longitude + latitude;
-
     let response = [];
 
     const cachedData = await getCachedData(cachekey);
     if (cachedData) {
       return cachedData;
     }
+
+    name = checkEmptyString(name);
+    longitude = parseFloat(longitude);
+    latitude = parseFloat(latitude);
 
     if (longitude && latitude) {
       const myquery = name ? { name: new RegExp(name, "i") } : {};
@@ -39,7 +38,7 @@ class LocationDataSource {
             $geoNear: {
               near: {
                 type: "Point",
-                coordinates: [parseFloat(longitude), parseFloat(latitude)],
+                coordinates: [longitude, latitude],
               },
               key: "location",
               distanceField: "distance",

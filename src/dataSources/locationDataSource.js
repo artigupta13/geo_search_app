@@ -150,6 +150,40 @@ class LocationDataSource {
       ];
 
       response = await this.collection.aggregate(pipeline).toArray();
+    } else {
+      pipeline = [
+        {
+          $facet: {
+            data: [
+              {
+                $project: {
+                  _id: 0,
+                  name: 1,
+                  longitude: { $arrayElemAt: ["$location.coordinates", 0] },
+                  latitude: { $arrayElemAt: ["$location.coordinates", 1] },
+                },
+              },
+              {
+                $skip: skip,
+              },
+              { $limit: limit },
+            ],
+            totalCount: [
+              {
+                $count: "count",
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            data: 1,
+            totalCount: { $arrayElemAt: ["$totalCount.count", 0] },
+          },
+        },
+      ];
+
+      response = await this.collection.aggregate(pipeline).toArray();
     }
 
     const totalCount = response[0].totalCount || 0; // Total number of records

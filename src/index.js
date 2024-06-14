@@ -7,11 +7,9 @@ import { config } from "./config.js";
 import db from "../src/utils/db.js";
 import StateDataSource from "./dataSources/stateDataSource.js";
 import LocationDataSource from "./dataSources/locationDataSource.js";
-import MigrationDataSource from "./dataSources/migrationDataSource.js";
 
 let locationDataSource;
 let stateDataSource;
-let migrationDataSource;
 
 export const app = express();
 
@@ -26,7 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to attach db connection to request
 app.use(async (req, res, next) => {
   try {
-    req.dataSources = { locationDataSource, stateDataSource, migrationDataSource };
+    req.dataSources = {
+      locationDataSource,
+      stateDataSource,
+    };
     next();
   } catch (error) {
     console.error("Failed to connect to database", error);
@@ -52,7 +53,6 @@ app.listen(config.port, async () => {
 
     stateDataSource = new StateDataSource(stateCollection);
     locationDataSource = new LocationDataSource(locationCollection);
-    migrationDataSource = new MigrationDataSource(locationCollection);
 
     console.log(`Server is running on http://localhost:${config.port}`);
   } catch (error) {

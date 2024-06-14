@@ -6,7 +6,7 @@ class SearchController {
 
       // Fetch search results from the service
       const results = await locationDataSource.searchLocations(req.query);
-      res.json({ suggestions: results });
+      res.json(results);
     } catch (error) {
       res.json({ message: `Something went wrong. Error: ${error.message}` });
     }

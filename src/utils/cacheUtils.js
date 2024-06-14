@@ -28,3 +28,13 @@ export const setCachedData = async (key, data, expiration = 3600) => {
     console.error(`Error saving data to Redis for key ${key}:`, error);
   }
 };
+
+export const getRedisInfo = () => {
+  redis.info((err, info) => {
+    if (err) {
+      console.error("Error fetching Redis info:", err);
+    } else {
+      console.log(info); // This will output various information including memory usage
+    }
+  });
+};

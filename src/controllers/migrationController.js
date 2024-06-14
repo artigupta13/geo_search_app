@@ -1,10 +1,10 @@
 class MigrationController {
   async migrate(req, res) {
-    const { migrationDataSource, stateDataSource } = req.dataSources;
+    const { locationDataSource, stateDataSource } = req.dataSources;
 
     try {
       const filepath = req.file.path;
-      migrationDataSource.migrateCsvToDb(filepath, stateDataSource);
+      locationDataSource.migrateCsvToDb(filepath, stateDataSource);
       res.status(200).json({
         message: "CSV file processing initiated",
       });

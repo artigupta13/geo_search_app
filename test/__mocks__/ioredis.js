@@ -6,6 +6,7 @@ const Redis = jest.fn().mockImplementation(() => ({
   get: mGet,
   setex: mSetex,
   on: jest.fn(),
+  config : jest.fn(),
 }));
 
 export default Redis;
